@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг»
 
-* Студент: [Lidia Godorazhi](https://up.htmlacademy.ru/javascript/25/user/241425).
-* Наставник: `Неизвестно`.
+- Студент: [Lidia Godorazhi](https://up.htmlacademy.ru/javascript/25/user/241425).
+- Наставник: `Александр Карцев`.
 
 ---
 
