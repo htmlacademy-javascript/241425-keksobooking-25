@@ -16,11 +16,11 @@ function getAmountFloatSigns(number) {
 function normalizeNumber(number, amountSigns, type = 'floor') {
   if (getAmountFloatSigns(number) > amountSigns) {
     const mult = Math.pow(10, amountSigns);
-    const normalized =
+    const normalizedNumber =
       type === 'ceil'
         ? Math.ceil(number * mult) / mult
         : Math.floor(number * mult) / mult;
-    return normalized;
+    return normalizedNumber;
   }
   return number;
 }
@@ -33,26 +33,21 @@ function getRandomFloat(min, max, signsAmount) {
   }
 
   const multiplier = Math.pow(10, signsAmount);
-  const normalizeMin = normalizeNumber(min, signsAmount, 'ceil');
-  const normalizeMax = normalizeNumber(max, signsAmount, 'floor');
+  const normalizedMin = normalizeNumber(min, signsAmount, 'ceil');
+  const normalizedMax = normalizeNumber(max, signsAmount, 'floor');
 
-  if (normalizeMin > normalizeMax) {
+  if (normalizedMin > normalizedMax) {
     throw new Error('There is no solition for these parametres');
   }
 
   const randomMultNum = getRandom(
     0,
-    (normalizeMax - normalizeMin) * multiplier
+    (normalizedMax - normalizedMin) * multiplier
   );
-  const randomNum = normalizeMin + randomMultNum / multiplier;
+  const randomNum = normalizedMin + randomMultNum / multiplier;
 
   return randomNum.toFixed(signsAmount);
 }
 
 getRandom(0, 5);
-getRandomFloat(1.2, 1.9, 0);
-
-// // eslint-disable-next-line
-// console.log('getRandom(): ', getRandom(0, 5));
-// // eslint-disable-next-line
-// console.log('getRandomFloat(): ', getRandomFloat(1.2, 1.9, 0));
+getRandomFloat(1.2, 3.94, 2);
