@@ -6,7 +6,7 @@ import {
   createListWithNoRepeats,
 } from './helpers.js';
 
-const USER_ID_AMOUNT = 20;
+const USER_ID_AMOUNT = 10;
 const userIds = Array.from({ length: USER_ID_AMOUNT }).map((_, ndx) => ndx + 1);
 const reservedIds = new Set();
 const advertRoomTypes = ['palace', 'flat', 'house', 'bungalow', 'hotel'];

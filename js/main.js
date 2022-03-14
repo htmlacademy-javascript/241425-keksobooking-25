@@ -1,5 +1,3 @@
-import { generateData } from './datagenerator.js';
+import { generateCards } from './markupgenerator.js';
 
-const ADVERT_AMOUNT = 10;
-
-generateData(ADVERT_AMOUNT);
+generateCards();
