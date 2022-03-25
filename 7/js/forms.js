@@ -68,7 +68,7 @@ const pristine = new Pristine(adForm, {
   successClass: 'ad-form__element--valid',
   errorTextParent: 'ad-form__element',
   errorTextTag: 'span',
-  errorTextClass: 'form__error'
+  errorTextClass: 'ad-form__error'
 }, false);
 
 adForm.addEventListener('submit', (e) => {
@@ -123,7 +123,7 @@ function getRoomErrorMessage() {
   if (+roomNumber.value === 100) {
     return 'Это количество комнат не для гостей';
   }
-  return `Это количество комнат максимум для ${+roomNumber.value} гостей `;
+  return `Максимум гостей для этого количества комнат: ${+roomNumber.value}`;
 }
 function getCapacityErrorMessage() {
   if (+capacity.value === 0) {
