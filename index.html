@@ -140,6 +140,7 @@
         <h2 class="notice__title">Ваше объявление</h2>
         <form
           class="ad-form"
+          action="https://25.javascript.pages.academy/keksobooking"
           method="post"
           enctype="multipart/form-data"
           autocomplete="off"
@@ -182,6 +183,8 @@
               >Заголовок объявления</label
             >
             <input
+              required
+              data-pristine-required-message="Обязательно для заполнения"
               id="title"
               name="title"
               type="text"
@@ -192,7 +195,12 @@
             <label class="ad-form__label" for="address"
               >Адрес (координаты)</label
             >
-            <input id="address" name="address" type="text" />
+            <input
+              required
+              data-pristine-required-message="Обязательно для заполнения"
+              id="address"
+              name="address"
+              type="text" />
           </fieldset>
           <fieldset class="ad-form__element">
             <label class="ad-form__label" for="type">Тип жилья</label>
@@ -206,7 +214,14 @@
           </fieldset>
           <fieldset class="ad-form__element">
             <label class="ad-form__label" for="price">Цена за ночь, руб.</label>
-            <input id="price" name="price" type="number" placeholder="5000" />
+            <input
+              required
+              data-pristine-required-message="Обязательно для заполнения"
+              id="price"
+              name="price"
+              type="number"
+              placeholder="5000"
+            />
             <div class="ad-form__slider"></div>
           </fieldset>
           <fieldset class="ad-form__element ad-form__element--time">
