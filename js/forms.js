@@ -61,6 +61,17 @@ const adForm = document.querySelector('.ad-form');
 const roomNumber = adForm.querySelector('#room_number');
 const capacity = adForm.querySelector('#capacity');
 const price = adForm.querySelector('#price');
+const roomType = adForm.querySelector('#type');
+const TYPES_MIN_PRICES = {
+  'bungalow': 0,
+  'flat': 1000,
+  'hotel': 3000,
+  'house': 5000,
+  'palace': 10000,
+};
+const timein = adForm.querySelector('#timein');
+const timeout = adForm.querySelector('#timeout');
+
 
 const pristine = new Pristine(adForm, {
   classTo: 'ad-form__element',
@@ -89,28 +100,12 @@ pristine.addValidator(
   'Поле должно содержать от 30 до 100 символов'
 );
 
-function validatePrice (value) {
-  return parseFloat(value) && value > 0 && value <= 100000;
-}
-function getPriceErrorMessage() {
-  if (price.value <= 0) {
-    return 'Должно быть положительным числом';
-  }
-  return 'Должно быть не более 100000';
-}
-pristine.addValidator(
-  price,
-  validatePrice,
-  getPriceErrorMessage
-);
-
 function validateRoomAndCapacity() {
   if (+roomNumber.value === 100 || +capacity.value === 0) {
     return +roomNumber.value === 100 && +capacity.value === 0;
   }
   return +roomNumber.value >= +capacity.value;
 }
-
 function getRoomErrorMessage() {
   if (+roomNumber.value === 100) {
     return 'Это количество комнат не для гостей';
@@ -122,7 +117,6 @@ function getCapacityErrorMessage() {
     return 'Значение \'не для гостей\' коректно для 100 комнат';
   }
 }
-
 pristine.addValidator(
   roomNumber,
   validateRoomAndCapacity,
@@ -133,3 +127,32 @@ pristine.addValidator(
   validateRoomAndCapacity,
   getCapacityErrorMessage
 );
+
+roomType.addEventListener('change', () => {
+  price.setAttribute('placeholder', TYPES_MIN_PRICES[roomType.value]);
+});
+function validateMinPrice(value) {
+  return value >= TYPES_MIN_PRICES[roomType.value] && value <= 100000;
+}
+function getMinPriceErrorMessage() {
+  if (price.value < 0) {
+    return 'Минимальное значение 0';
+  }
+  if (price.value < TYPES_MIN_PRICES[roomType.value]) {
+    return `Должно быть не менее ${TYPES_MIN_PRICES[roomType.value]}`;
+  }
+  return 'Максимальное значение 100 000';
+}
+pristine.addValidator(
+  price,
+  validateMinPrice,
+  getMinPriceErrorMessage
+);
+
+timein.addEventListener('change', (e) => {
+  timeout.value = e.target.value;
+});
+timeout.addEventListener('change', (e) => {
+  timein.value = e.target.value;
+});
+
