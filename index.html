@@ -3,6 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" href="nouislider/nouislider.css" />
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <title>Кексобукинг</title>
@@ -198,6 +200,7 @@
             <input
               required
               data-pristine-required-message="Обязательно для заполнения"
+              value="35.68950, 139.69171"
               id="address"
               name="address"
               type="text" />
@@ -220,9 +223,10 @@
               id="price"
               name="price"
               type="number"
+              step="100"
               placeholder="1000"
             />
-            <div class="ad-form__slider"></div>
+            <div class="ad-form__slider" id="ad-form__slider"></div>
           </fieldset>
           <fieldset class="ad-form__element ad-form__element--time">
             <label class="ad-form__label" for="timein"
@@ -486,6 +490,8 @@
       </div>
     </template>
 
+    <script src="nouislider/nouislider.js"></script>
+    <script src="leaflet/leaflet.js"></script>
     <script type="module" src="./js/main.js"></script>
   </body>
 </html>

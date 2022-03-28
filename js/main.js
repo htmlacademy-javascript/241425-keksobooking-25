@@ -1,7 +1,2 @@
-import { generateCards } from './markupgenerator.js';
-import { deactivateForms, activateForms } from './forms.js';
-
-generateCards();
-
-deactivateForms();
-activateForms();
+import './formvalidation.js';
+import './map.js';
