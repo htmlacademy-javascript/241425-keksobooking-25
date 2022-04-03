@@ -29,7 +29,7 @@ L.tileLayer(
   },
 ).addTo(map);
 
-function createMarker(markerLat, markerLng, markerIcon, isDraggable = false, baloonData = null, markerGroup = null) {
+function createMarker(markerLat, markerLng, markerIcon, isDraggable = false, baloonData = null, layer = null) {
   const marker = L.marker(
     {
       lat: markerLat,
@@ -41,7 +41,7 @@ function createMarker(markerLat, markerLng, markerIcon, isDraggable = false, bal
     },
   );
 
-  const group = markerGroup ? markerGroup : map;
+  const group = layer ? layer : map;
   marker.addTo(group);
 
   if (baloonData) {

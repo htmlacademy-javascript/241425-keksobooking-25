@@ -5,6 +5,7 @@ import { closeOpenedBaloon, setStartMainMarker } from './map.js';
 
 
 const adFormNode = document.querySelector('.ad-form');
+const resetBtnNode = document.querySelector('.ad-form__reset');
 const roomNumberNode = adFormNode.querySelector('#room_number');
 const capacityNode = adFormNode.querySelector('#capacity');
 const addressNode = adFormNode.querySelector('#address');
@@ -63,10 +64,14 @@ function clearForm(form) {
   sliderNode.noUiSlider.set(TYPES_MIN_PRICES[roomTypeNode.value]);
 }
 
+resetBtnNode.addEventListener('click', (e) => {
+  e.preventDefault();
+  clearForm(adFormNode);
+});
+
 adFormNode.addEventListener('reset', () => {
   setStartMainMarker();
   closeOpenedBaloon();
-  sliderNode.noUiSlider.set(TYPES_MIN_PRICES[roomTypeNode.value]);
 });
 
 
