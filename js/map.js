@@ -1,22 +1,26 @@
 import { deactivateForms, activateForms } from './forms.js';
-import { generateData } from './datagenerator.js';
 import { generateCard } from './cardgenerator.js';
+import { loadMarkersData } from './api.js';
+import { showErrorMessage } from './helpers.js';
 
 deactivateForms();
 
-const AMOUNT_OF_CARDS = 10;
-const adForm = document.querySelector('.ad-form');
-const address = adForm.querySelector('#address');
+const START_VIEW = {
+  lat: 35.68950,
+  lng: 139.69171,
+};
+
+const adFormNode = document.querySelector('.ad-form');
+const addressNode = adFormNode.querySelector('#address');
 const template = document.querySelector('#card').content;
+let getMarkersData = null;
 
 const map = L.map('map-canvas')
   .on('load', () => {
     activateForms();
+    getMarkersData = loadMarkersData(handleMarkersData, showErrorMessage);
   })
-  .setView({
-    lat: 35.68950,
-    lng: 139.69171,
-  }, 12);
+  .setView(START_VIEW, 12);
 
 L.tileLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -25,8 +29,7 @@ L.tileLayer(
   },
 ).addTo(map);
 
-
-function createMarker(markerLat, markerLng, markerIcon, isDraggable = false, baloonData = null) {
+function createMarker(markerLat, markerLng, markerIcon, isDraggable = false, baloonData = null, layer = null) {
   const marker = L.marker(
     {
       lat: markerLat,
@@ -38,7 +41,8 @@ function createMarker(markerLat, markerLng, markerIcon, isDraggable = false, bal
     },
   );
 
-  marker.addTo(map);
+  const group = layer ? layer : map;
+  marker.addTo(group);
 
   if (baloonData) {
     marker.bindPopup(generateCard(baloonData, template));
@@ -54,9 +58,11 @@ const mainMarkerIcon = L.icon({
 
 const mainMarker = createMarker(35.68950, 139.69171, mainMarkerIcon, true);
 
+const markerGroup = L.layerGroup().addTo(map);
+
 mainMarker.on('moveend', (e) => {
   const { lng, lat } = e.target.getLatLng();
-  address.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  addressNode.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 });
 
 
@@ -66,7 +72,17 @@ const simpleMarkerIcon = L.icon({
   iconAnchor: [20, 40],
 });
 
-const markersData = generateData(AMOUNT_OF_CARDS);
-markersData.forEach((item) => {
-  createMarker(item.location.lat, item.location.lng, simpleMarkerIcon, false, item);
-});
+function handleMarkersData(markersData) {
+  markersData.forEach((item) => {
+    createMarker(item.location.lat, item.location.lng, simpleMarkerIcon, false, item, markerGroup);
+  });
+}
+
+getMarkersData();
+
+export function setStartMainMarker() {
+  mainMarker.setLatLng(START_VIEW);
+}
+export function closeOpenedBaloon() {
+  map.closePopup();
+}
