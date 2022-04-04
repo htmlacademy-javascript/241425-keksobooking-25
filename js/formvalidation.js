@@ -1,13 +1,18 @@
 import '../pristine/pristine.min.js';
+import { sendAdvertData } from './api.js';
+import { blockSubmitButton, showResultPopup, unblockSubmitButton } from './helpers.js';
+import { closeOpenedBaloon, setStartMainMarker } from './map.js';
 
-const adForm = document.querySelector('.ad-form');
-const roomNumber = adForm.querySelector('#room_number');
-const capacity = adForm.querySelector('#capacity');
-const address = adForm.querySelector('#address');
-const addressValue = address.value;
-const price = adForm.querySelector('#price');
-const roomType = adForm.querySelector('#type');
-const sliderElement = document.querySelector('.ad-form__slider');
+
+const adFormNode = document.querySelector('.ad-form');
+const resetBtnNode = document.querySelector('.ad-form__reset');
+const roomNumberNode = adFormNode.querySelector('#room_number');
+const capacityNode = adFormNode.querySelector('#capacity');
+const addressNode = adFormNode.querySelector('#address');
+const addressValue = addressNode.value;
+const priceNode = adFormNode.querySelector('#price');
+const roomTypeNode = adFormNode.querySelector('#type');
+const sliderNode = document.querySelector('.ad-form__slider');
 const TYPES_MIN_PRICES = {
   'bungalow': 0,
   'flat': 1000,
@@ -15,14 +20,14 @@ const TYPES_MIN_PRICES = {
   'house': 5000,
   'palace': 10000,
 };
-const timein = adForm.querySelector('#timein');
-const timeout = adForm.querySelector('#timeout');
+const timeinNode = adFormNode.querySelector('#timein');
+const timeoutNode = adFormNode.querySelector('#timeout');
 
-address.addEventListener('input', (e) => {
+addressNode.addEventListener('input', (e) => {
   e.target.value = addressValue;
 });
 
-const pristine = new Pristine(adForm, {
+const pristine = new Pristine(adFormNode, {
   classTo: 'ad-form__element',
   errorClass: 'ad-form__element--invalid',
   successClass: 'ad-form__element--valid',
@@ -31,48 +36,79 @@ const pristine = new Pristine(adForm, {
   errorTextClass: 'ad-form__error'
 }, false);
 
-adForm.addEventListener('submit', (e) => {
+adFormNode.addEventListener('submit', (e) => {
+  e.preventDefault();
+
   const isValid = pristine.validate();
 
-  if (!isValid) {
-    e.preventDefault();
+  if (isValid) {
+    const submitBtnNode = e.target.querySelector('[type="submit"]');
+    const submitBtnText = submitBtnNode.textContent;
+
+    blockSubmitButton(submitBtnNode);
+    sendAdvertData(
+      () => {
+        clearForm(e.target);
+        unblockSubmitButton(submitBtnNode, submitBtnText);
+        showResultPopup('#success');
+      },
+      () => { showResultPopup('#error'); },
+      new FormData(e.target)
+    );
   }
 
 });
+
+function clearForm(form) {
+  form.reset();
+  sliderNode.noUiSlider.updateOptions(changeMinUiSlider(TYPES_MIN_PRICES[roomTypeNode.value]));
+  sliderNode.noUiSlider.set(TYPES_MIN_PRICES[roomTypeNode.value]);
+}
+
+resetBtnNode.addEventListener('click', (e) => {
+  e.preventDefault();
+  clearForm(adFormNode);
+});
+
+adFormNode.addEventListener('reset', () => {
+  setStartMainMarker();
+  closeOpenedBaloon();
+});
+
 
 function validateTitle(value) {
   return value.length >= 30 && value.length <= 100;
 }
 pristine.addValidator(
-  adForm.querySelector('#title'),
+  adFormNode.querySelector('#title'),
   validateTitle,
   'Поле должно содержать от 30 до 100 символов'
 );
 
 function validateRoomAndCapacity() {
-  if (+roomNumber.value === 100 || +capacity.value === 0) {
-    return +roomNumber.value === 100 && +capacity.value === 0;
+  if (+roomNumberNode.value === 100 || +capacityNode.value === 0) {
+    return +roomNumberNode.value === 100 && +capacityNode.value === 0;
   }
-  return +roomNumber.value >= +capacity.value;
+  return +roomNumberNode.value >= +capacityNode.value;
 }
 function getRoomErrorMessage() {
-  if (+roomNumber.value === 100) {
+  if (+roomNumberNode.value === 100) {
     return 'Это количество комнат не для гостей';
   }
-  return `Максимум гостей для этого количества комнат: ${+roomNumber.value}`;
+  return `Максимум гостей для этого количества комнат: ${+roomNumberNode.value}`;
 }
 function getCapacityErrorMessage() {
-  if (+capacity.value === 0) {
+  if (+capacityNode.value === 0) {
     return 'Значение \'не для гостей\' коректно для 100 комнат';
   }
 }
 pristine.addValidator(
-  roomNumber,
+  roomNumberNode,
   validateRoomAndCapacity,
   getRoomErrorMessage
 );
 pristine.addValidator(
-  capacity,
+  capacityNode,
   validateRoomAndCapacity,
   getCapacityErrorMessage
 );
@@ -95,40 +131,41 @@ function changeMinUiSlider(min) {
     },
   };
 }
-noUiSlider.create(sliderElement, changeMinUiSlider(TYPES_MIN_PRICES[roomType.value]));
+noUiSlider.create(sliderNode, changeMinUiSlider(TYPES_MIN_PRICES[roomTypeNode.value]));
 
-sliderElement.noUiSlider.on('update', () => {
-  price.value = sliderElement.noUiSlider.get();
+sliderNode.noUiSlider.on('update', () => {
+  priceNode.value = sliderNode.noUiSlider.get();
 });
 
-roomType.addEventListener('change', () => {
-  price.setAttribute('placeholder', TYPES_MIN_PRICES[roomType.value]);
-  sliderElement.noUiSlider.updateOptions(changeMinUiSlider(TYPES_MIN_PRICES[roomType.value]));
+roomTypeNode.addEventListener('change', () => {
+  priceNode.setAttribute('placeholder', TYPES_MIN_PRICES[roomTypeNode.value]);
+  sliderNode.noUiSlider.updateOptions(changeMinUiSlider(TYPES_MIN_PRICES[roomTypeNode.value]));
 });
-price.addEventListener('input', (e) => {
-  sliderElement.noUiSlider.set(e.target.value);
+priceNode.addEventListener('input', (e) => {
+  sliderNode.noUiSlider.set(e.target.value);
 });
+
 function validateMinPrice(value) {
-  return value >= TYPES_MIN_PRICES[roomType.value] && value <= 100000;
+  return value >= TYPES_MIN_PRICES[roomTypeNode.value] && value <= 100000;
 }
 function getMinPriceErrorMessage() {
-  if (price.value < 0) {
+  if (priceNode.value < 0) {
     return 'Минимальное значение 0';
   }
-  if (price.value < TYPES_MIN_PRICES[roomType.value]) {
-    return `Должно быть не менее ${TYPES_MIN_PRICES[roomType.value]}`;
+  if (priceNode.value < TYPES_MIN_PRICES[roomTypeNode.value]) {
+    return `Должно быть не менее ${TYPES_MIN_PRICES[roomTypeNode.value]}`;
   }
   return 'Максимальное значение 100 000';
 }
 pristine.addValidator(
-  price,
+  priceNode,
   validateMinPrice,
   getMinPriceErrorMessage
 );
 
-timein.addEventListener('change', (e) => {
-  timeout.value = e.target.value;
+timeinNode.addEventListener('change', (e) => {
+  timeoutNode.value = e.target.value;
 });
-timeout.addEventListener('change', (e) => {
-  timein.value = e.target.value;
+timeoutNode.addEventListener('change', (e) => {
+  timeinNode.value = e.target.value;
 });

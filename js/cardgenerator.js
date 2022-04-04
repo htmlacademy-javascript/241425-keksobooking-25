@@ -59,13 +59,13 @@ export function generateCard({ author, offer }, template) {
   }
 
   function updateAdvertFragment(parentClass, fragment = null) {
-    const parentEl = advert.querySelector(parentClass);
-    if (parentEl) {
+    const parentElem = advert.querySelector(parentClass);
+    if (parentElem) {
       if (fragment) {
-        parentEl.innerHTML = '';
-        parentEl.appendChild(fragment);
+        parentElem.innerHTML = '';
+        parentElem.appendChild(fragment);
       } else {
-        parentEl.remove();
+        parentElem.remove();
       }
     }
   }
