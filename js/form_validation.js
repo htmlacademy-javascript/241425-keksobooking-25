@@ -1,7 +1,7 @@
 import '../pristine/pristine.min.js';
 import { sendAdvertData } from './api.js';
 import { blockSubmitButton, showResultPopup, unblockSubmitButton } from './helpers.js';
-import { closeOpenedBaloon, setStartMainMarker } from './map.js';
+import { closeOpenedBaloon, setStartMainMarker } from './map_creation.js';
 
 
 const adFormNode = document.querySelector('.ad-form');
