@@ -9,9 +9,6 @@ function addShowingPreview(from, to, types) {
     return;
   }
   from.addEventListener('change', () => {
-    // eslint-disable-next-line
-    console.log('change');
-
     const file = from.files[0];
 
     const fileName = file.name.toLowerCase();
@@ -21,7 +18,6 @@ function addShowingPreview(from, to, types) {
     if (matches) {
       let img = to.querySelector('img');
       if (!img) {
-        // to.innerHtml = '';
         img = document.createElement('img');
         img.style.width = '100%';
         img.style.height = '100%';
