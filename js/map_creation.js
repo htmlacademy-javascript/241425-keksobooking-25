@@ -62,7 +62,7 @@ const map = L.map('map-canvas')
   .on('load', () => {
     activateElement(addAdvertFormSelector);
     activateElement('ad-form__slider');
-    loadMarkersData(handleMarkersData, showErrorMessage)();
+    loadMarkersData(handleMarkersData, showErrorMessage);
   })
   .setView(START_VIEW, 12);
 
@@ -148,14 +148,16 @@ function renderMarkers(markers = null, group = null) {
     });
 }
 
+const rerenderMarkersDebounced = debounce(() => {
+  renderMarkers(recievedMarkersData, markerGroup);
+}, DEBOUNCE_DELAY);
+
 [mapFilters, featureFilters].forEach((filterGroup) => {
   filterGroup.forEach((filter) => {
     filter.addEventListener('change', () => {
       updateFilterFields();
 
-      debounce(() => {
-        renderMarkers(recievedMarkersData, markerGroup);
-      }, DEBOUNCE_DELAY)();
+      rerenderMarkersDebounced();
     });
   });
 });
@@ -192,7 +194,6 @@ function getAdvertRank({ offer }) {
       default:
         break;
     }
-
   }
 
   return rank;
@@ -210,5 +211,3 @@ export function setStartMainMarker() {
 export function closeOpenedBaloon() {
   map.closePopup();
 }
-
-
