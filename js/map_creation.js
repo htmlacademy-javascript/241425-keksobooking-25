@@ -125,7 +125,7 @@ const markerGroup = L.layerGroup().addTo(map);
 
 // Activate form and first render markers after recieving data from server
 function handleMarkersData(markersData) {
-  if (!markersData.length === 0) {
+  if (markersData.length === 0) {
     deactivateElement(filterFormSelector);
     return;
   }
@@ -162,39 +162,46 @@ const rerenderMarkersDebounced = debounce(() => {
   });
 });
 
+function increaseRank(filterValue, offerValue, addedRank) {
+  if (filterValue && offerValue && filterValue === offerValue) {
+    return addedRank;
+  }
+
+  return 0;
+}
+function increaseRankByFeatures(filterFeaturesAmount, offerFeatures) {
+  if (filterFeaturesAmount && offerFeatures) {
+    if (offerFeatures.length === filterFeaturesAmount) {
+      return 2;
+    } else if (offerFeatures.length > filterFeaturesAmount) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+function increaseRankByPrice(filterPrice, offerPrice, addRank) {
+  if (filterPrice && offerPrice) {
+    if (
+      offerPrice < 10000 && filterPrice === 'low' ||
+      offerPrice >= 10000 && offerPrice <= 50000 && filterPrice === 'middle' ||
+      offerPrice > 50000 && filterPrice === 'high'
+    ) {
+      return addRank;
+    }
+  }
+
+  return 0;
+}
+
 function getAdvertRank({ offer }) {
   let rank = 0;
 
-  if (filterFields.type && offer.type && offer.type === filterFields.type) {
-    rank += 1;
-  }
-  if (filterFields.guests && offer.guests && offer.guests === filterFields.guests) {
-    rank += 1;
-  }
-  if (filterFields.rooms && offer.rooms && offer.rooms === filterFields.rooms) {
-    rank += 1;
-  }
-  if (filterFields.price && offer.price) {
-    if (
-      offer.price < 10000 && filterFields.price === 'low' ||
-      offer.price >= 10000 && offer.price <= 50000 && filterFields.price === 'middle' ||
-      offer.price > 50000 && filterFields.price === 'high'
-    ) {
-      rank += 1;
-    }
-  }
-  if (filterFields.featuresAmount && offer.features) {
-    switch (true) {
-      case (offer.features.length === filterFields.featuresAmount):
-        rank += 2;
-        break;
-      case (offer.features.length > filterFields.featuresAmount):
-        rank += 1;
-        break;
-      default:
-        break;
-    }
-  }
+  rank += increaseRank(filterFields.type, offer.type, 15);
+  rank += increaseRank(filterFields.guests, offer.guests, 10);
+  rank += increaseRank(filterFields.rooms, offer.rooms, 5);
+  rank += increaseRankByPrice(filterFields.price, offer.price, 20);
+  rank += increaseRankByFeatures(filterFields.featuresAmount, offer.features);
 
   return rank;
 }
