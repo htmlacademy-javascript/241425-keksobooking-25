@@ -7,7 +7,7 @@ const TYPES_OF_HOUSE = {
 };
 
 function createFragment(dataArray, template, addClass = '', attrName = null) {
-  if (!dataArray || dataArray.lengtn === 0) {
+  if (!dataArray || dataArray.length === 0) {
     return null;
   }
 

@@ -8,14 +8,6 @@ export function getRandom(min, max) {
   return min + Math.floor(Math.random() * amountNumbers);
 }
 
-export function getRandomFloat(min, max, signsAmount) {
-  const lower = Math.min(Math.abs(min), Math.abs(max));
-  const upper = Math.max(Math.abs(min), Math.abs(max));
-  const result = Math.random() * (upper - lower) + lower;
-
-  return +result.toFixed(signsAmount);
-}
-
 function capitalizeFirstLetter(str) {
   return str[0].toUpperCase() + str.slice(1);
 }
@@ -37,47 +29,6 @@ export function createRandomWord(
   }
 
   return title;
-}
-
-export function createRandomDescription(minWords, maxWords) {
-  let desc = Array.from({ length: getRandom(minWords, maxWords) }, () =>
-    createRandomWord(3, 10)
-  ).join(' ');
-
-  desc = capitalizeFirstLetter(desc);
-
-  return desc;
-}
-
-export function createListWithNoRepeats(
-  possibleValuesList,
-  amountElemToReturn = 1,
-  reservedElemList = null
-) {
-  if (amountElemToReturn >= possibleValuesList) {
-    return possibleValuesList;
-  }
-
-  const reservedList = reservedElemList ? reservedElemList : new Set();
-
-  const finalElemList = Array.from({ length: amountElemToReturn }).map(() => {
-    let isUnique = false;
-    let elem = '';
-
-    while (!isUnique) {
-      elem = possibleValuesList[getRandom(0, possibleValuesList.length - 1)];
-
-      if (reservedList.has(elem)) {
-        continue;
-      }
-
-      reservedList.add(elem);
-      isUnique = true;
-    }
-    return elem;
-  });
-
-  return finalElemList;
 }
 
 export function showErrorMessage(message) {
@@ -106,16 +57,21 @@ export function showResultPopup(selector) {
   popup.classList.add('container-result');
   const template = document.querySelector(selector).content;
 
+  function keyDownHadle(e) {
+    if (e.key === 'Escape') {
+      popup.remove();
+      document.removeEventListener('keydown', keyDownHadle);
+    }
+  }
+
   if (template) {
     popup.appendChild(template.cloneNode(true));
     popup.addEventListener('click', () => {
       popup.remove();
     });
-    popup.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        popup.remove();
-      }
-    });
+
+    document.addEventListener('keydown', keyDownHadle);
+
     const errorBtnNode = popup.querySelector('.error__button');
     if (errorBtnNode) {
       errorBtnNode.addEventListener('click', popup.remove());
