@@ -42,14 +42,14 @@ const filterFields = {
   price: priceFilterNode.value,
   rooms: +roomsFilterNode.value,
   guests: +guestsFilterNode.value,
-  featuresAmount: featuresParentNode.querySelectorAll('[name="features"]:checked').length,
+  features: Array.from(featuresParentNode.querySelectorAll('[name="features"]:checked')).map((item) => item.value),
 };
 function updateFilterFields() {
   filterFields.type = typeFilterNode.value;
   filterFields.price = priceFilterNode.value;
   filterFields.rooms = +roomsFilterNode.value;
   filterFields.guests = +guestsFilterNode.value;
-  filterFields.featuresAmount = featuresParentNode.querySelectorAll('[name="features"]:checked').length;
+  filterFields.features = Array.from(featuresParentNode.querySelectorAll('[name="features"]:checked')).map((item) => item.value);
 }
 
 let recievedMarkersData = null;
@@ -141,6 +141,7 @@ function renderMarkers(markers = null, group = null) {
   group = group ? group.clearLayers() : map;
 
   markers
+    .filter(filterAdvert)
     .sort(compareAdvert)
     .slice(0, 10)
     .forEach((marker) => {
@@ -162,46 +163,56 @@ const rerenderMarkersDebounced = debounce(() => {
   });
 });
 
-function increaseRank(filterValue, offerValue, addedRank) {
-  if (filterValue && offerValue && filterValue === offerValue) {
-    return addedRank;
-  }
-
-  return 0;
+function filterAdvert({ offer }) {
+  return checkType(filterFields.type, offer.type)
+    && checkGuests(filterFields.guests, offer.guests)
+    && checkRooms(filterFields.rooms, offer.rooms)
+    && checkPrice(filterFields.price, offer.price)
+    && checkFeatures(filterFields.features, offer.features);
 }
-function increaseRankByFeatures(filterFeaturesAmount, offerFeatures) {
-  if (filterFeaturesAmount && offerFeatures) {
-    if (offerFeatures.length === filterFeaturesAmount) {
-      return 2;
-    } else if (offerFeatures.length > filterFeaturesAmount) {
-      return 1;
-    }
-  }
 
-  return 0;
+function checkType(filterValue, offerValue) {
+  return (filterValue === 'any' || (offerValue && filterValue === offerValue));
 }
-function increaseRankByPrice(filterPrice, offerPrice, addRank) {
-  if (filterPrice && offerPrice) {
-    if (
-      offerPrice < 10000 && filterPrice === 'low' ||
-      offerPrice >= 10000 && offerPrice <= 50000 && filterPrice === 'middle' ||
-      offerPrice > 50000 && filterPrice === 'high'
-    ) {
-      return addRank;
-    }
+function checkGuests(filterValue, offerValue) {
+  return ((!filterValue && filterValue !== 0) || (offerValue && filterValue === offerValue));
+}
+function checkRooms(filterRooms, offerRooms) {
+  return (!filterRooms || (offerRooms && filterRooms === offerRooms));
+}
+function checkPrice(filterPrice, offerPrice) {
+
+  const isCorrectPrice = offerPrice
+    && (offerPrice < 10000 && filterPrice === 'low'
+      || offerPrice >= 10000 && offerPrice <= 50000 && filterPrice === 'middle'
+      || offerPrice > 50000 && filterPrice === 'high');
+
+  return (filterPrice === 'any' || isCorrectPrice);
+}
+function checkFeatures(filterFeatures, offerFeatures) {
+
+  if (!filterFeatures || filterFeatures.length === 0) {
+    return true;
   }
 
-  return 0;
+  function filterFeature(featureFromFilter) {
+    return offerFeatures.some((feature) => feature === featureFromFilter);
+  }
+
+  const isAllFeaturesCorrect = offerFeatures
+    && filterFeatures.filter(filterFeature).length === filterFeatures.length;
+
+  return isAllFeaturesCorrect;
 }
 
 function getAdvertRank({ offer }) {
   let rank = 0;
 
-  rank += increaseRank(filterFields.type, offer.type, 15);
-  rank += increaseRank(filterFields.guests, offer.guests, 10);
-  rank += increaseRank(filterFields.rooms, offer.rooms, 5);
-  rank += increaseRankByPrice(filterFields.price, offer.price, 20);
-  rank += increaseRankByFeatures(filterFields.featuresAmount, offer.features);
+  if (filterFields.features.length && offer.features) {
+    if (offer.features.length > filterFields.features.length) {
+      rank += 1;
+    }
+  }
 
   return rank;
 }
