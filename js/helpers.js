@@ -1,36 +1,3 @@
-export function getRandom(min, max) {
-  if (min > max) {
-    throw new Error('Invalid parameters: min should be less than max');
-  }
-
-  const amountNumbers = max - min + 1;
-
-  return min + Math.floor(Math.random() * amountNumbers);
-}
-
-function capitalizeFirstLetter(str) {
-  return str[0].toUpperCase() + str.slice(1);
-}
-
-export function createRandomWord(
-  minLength = 10,
-  maxLength = 20,
-  capitalizeFirst = false
-) {
-  const MIN_NUM_LETTER = 97;
-  const MAX_NUM_LETTER = 122;
-
-  let title = Array.from({ length: getRandom(minLength, maxLength) })
-    .map(() => String.fromCharCode(getRandom(MIN_NUM_LETTER, MAX_NUM_LETTER)))
-    .join('');
-
-  if (capitalizeFirst) {
-    title = capitalizeFirstLetter(title);
-  }
-
-  return title;
-}
-
 export function showErrorMessage(message) {
   const errorNode = document.createElement('div');
   errorNode.style.zIndex = 100;
@@ -57,20 +24,24 @@ export function showResultPopup(selector) {
   popup.classList.add('container-result');
   const template = document.querySelector(selector).content;
 
-  function keyDownHadle(e) {
+  function keyDownHandle(e) {
     if (e.key === 'Escape') {
       popup.remove();
-      document.removeEventListener('keydown', keyDownHadle);
+      document.removeEventListener('keydown', keyDownHandle);
     }
+  }
+
+  function clickHandle() {
+    popup.remove();
+    document.removeEventListener('keydown', keyDownHandle);
   }
 
   if (template) {
     popup.appendChild(template.cloneNode(true));
-    popup.addEventListener('click', () => {
-      popup.remove();
-    });
 
-    document.addEventListener('keydown', keyDownHadle);
+    popup.addEventListener('click', clickHandle);
+
+    document.addEventListener('keydown', keyDownHandle);
 
     const errorBtnNode = popup.querySelector('.error__button');
     if (errorBtnNode) {
@@ -99,19 +70,5 @@ export function debounce(callback, timeoutDelay = 500) {
     clearTimeout(timeoutId);
 
     timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
-  };
-}
-
-export function throttle(callback, delayBetweenFrames) {
-  let lastTime = 0;
-
-  return (...rest) => {
-
-    const now = new Date();
-
-    if (now - lastTime >= delayBetweenFrames) {
-      callback.apply(this, rest);
-      lastTime = now;
-    }
   };
 }
